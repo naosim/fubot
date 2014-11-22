@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+  <head>
+    <title>FUBOT</title>
+  </head>
+  <body>
+    consoleに<br>
+    say('hello')<br>
+    って書いてみよう。<br>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+    var socket = io();
+    socket.on('message', function(msg){ console.log('fubot > ' + msg) });
+    
+    var say = function(msg, from) {
+      socket.emit('message', { body: msg, from: from });
+    };
+    </script>
+  </body>
+</html>
