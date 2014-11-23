@@ -36,7 +36,11 @@ module.exports = function(robot) {
       'http://b.hatena.ne.jp/hotentry/it.rss',
       'http://b.hatena.ne.jp/hotentry/fun.rss'
     ];
-    rssreader.run(rssUrls, sender);
+    var newFeedCallback = function(item) {
+      console.log(item.title);
+      sender.send(item.title);
+    };
+    rssreader.run(rssUrls, newFeedCallback);
     // setInterval(function() {
     //   sender.send("At " + new Date());
     // }, 60 * 1000);

@@ -77,12 +77,7 @@ module.exports.all = function() {
   return newItenFeedCrawler.all();
 };
 
-module.exports.run = function(rssUrls, sender) {
-  var newFeedCallback = function(item) {
-    console.log(item.title);
-    sender.send(item.title);
-  };
-
+module.exports.run = function(rssUrls, newFeedCallback) {
   setInterval(crawlTask(rssUrls, newItenFeedCrawler), 3 * 60 * 1000);
   crawlTask(rssUrls, newItenFeedCrawler)();
 
