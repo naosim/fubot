@@ -1,6 +1,6 @@
 var fubot = require(__dirname + '/fubot/fubot.js');
 var robot = fubot.Robot();
-var example = require(__dirname + '/scripts/script.js')(robot);
+var script = require(__dirname + '/scripts/script.js')(robot);
 
 // 環境変数NODE_ADAPTER_SCRIPTからアダプタのスクリプトを決める
 // デフォルトは SocketAdapter.js
