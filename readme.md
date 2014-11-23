@@ -1,5 +1,7 @@
 # FUBOT
-github HUBOTのパクリです。
+github HUBOTのパクリです。  
+
+![fubot](http://naosim.ninpou.jp/img/fubot.png)
 
 ## 使ってみる
 - インストール
