@@ -38,7 +38,7 @@ module.exports = function(robot) {
     ];
     var newFeedCallback = function(item, rss) {
       console.log(item.title, item.link, item.description);
-      sender.send(item.title + '\n' + item.link + '\n' + item.description);
+      sender.send(item);
     };
     rssreader.run(rssUrls, newFeedCallback);
     // setInterval(function() {

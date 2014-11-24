@@ -63,6 +63,7 @@
       padding-left: 24px;
       padding-right: 24px;
       font-size: small;
+      height: 160px;
     }
     </style>
   </head>
@@ -83,7 +84,7 @@
     <script>
     var createFeedLi = function(title, link, description) {
       var result = document.createElement("li");
-      var html = '<p><a href="' + link + '" target="_blank">' + title + '</a></p>';
+      var html = '<div><a href="' + link + '" target="_blank">' + title + '</a></div>';
       if(description) html += '<div class="rss-description">' + description + '</div>';
       result.innerHTML = html;
       return result;
@@ -100,25 +101,20 @@
       });
       return result;
     };
-    var test = function() {
-      var title = "hge";
-      var link = "http://www.yahoo.co.jp";
-      var description = '<blockquote cite="http://himasoku.com/archives/51876212.html" title="【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ : 暇人＼(^o^)／速報 - ライブドアブログ"><cite><img src="http://cdn-ak.favicon.st-hatena.com/?url=http%3A%2F%2Fhimasoku.com%2F" alt=""> <a href="http://himasoku.com/archives/51876212.html">【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ : 暇人＼(^o^)／速報 - ライブドアブログ</a></cite><p><a href="http://himasoku.com/archives/51876212.html"><img src="http://cdn-ak.b.st-hatena.com/entryimage/234719497-1416814324.jpg" alt="【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ : 暇人＼(^o^)／速報 - ライブドアブログ" title="【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ : 暇人＼(^o^)／速報 - ライブドアブログ" class="entry-image"></a></p><p>【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ Tweet 1: 以下、＼(^o^)／でVIPがお送りします 2014/11/24(月) 08:42:58.93 ID:Qs5352ub0.net　 付き合いたい 3: 以下、＼(^o^)／でVIPがお送りします 2014/11/24(月) 08:43:43.02 ID:kKl5e7wr0.net 真ん中はもらった 6: 以下、＼(^o^)／でVIP...</p><p><a href="http://b.hatena.ne.jp/entry/http://himasoku.com/archives/51876212.html"><img src="http://b.hatena.ne.jp/entry/image/http://himasoku.com/archives/51876212.html" alt="はてなブックマーク - 【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ : 暇人＼(^o^)／速報 - ライブドアブログ" title="はてなブックマーク - 【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ : 暇人＼(^o^)／速報 - ライブドアブログ" border="0" style="border: none"></a> <a href="http://b.hatena.ne.jp/append?http://himasoku.com/archives/51876212.html"><img src="http://b.hatena.ne.jp/images/append.gif" border="0" alt="はてなブックマークに追加" title="はてなブックマークに追加"></a></p></blockquote></div>';
-      var imgs = getImgs(description);
-      if(imgs.favicon.length > 0) title = imgs.favicon + ' ' + title;
-      feedList.insertBefore(createFeedLi(title, link, imgs.imgs), feedList.firstChild);
-    }
-    // test();
 
     var socket = io();
-    socket.on('message', function(msg){
-      var lines = msg.split('\n');
-      var title = lines[0];
-      var link = lines[1];
-      var description = lines[2];
-      var imgs = getImgs(description);
+    socket.on('message', function(item){
+      if(typeof item == 'string') {
+        var insertDiv = document.createElement("li");
+        insertDiv.innerHTML = item;
+        feedList.insertBefore(insertDiv, feedList.firstChild);
+        return;
+      }
+      var title = item.title;
+      var description = item.description;
+      var imgs = getImgs(item.description);
       if(imgs.favicon.length > 0) title = imgs.favicon + ' ' + title;
-      feedList.insertBefore(createFeedLi(title, link, imgs.imgs), feedList.firstChild);
+      feedList.insertBefore(createFeedLi(title, item.link, imgs.imgs), feedList.firstChild);
     });
 
     var say = function(msg, from) {
