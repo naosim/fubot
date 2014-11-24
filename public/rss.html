@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+  <head>
+    <title>FUBOT</title>
+  </head>
+  <body>
+    <ul id="feedList">
+    </ul>
+    consoleに<br>
+    say('hello')<br>
+    って書いてみよう。<br>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+    var socket = io();
+    socket.on('message', function(msg){
+      console.log('fubot > ' + msg)
+      var newElem = document.createElement("li");
+      if(msg.indexOf('http') != -1) {
+        var l = msg.split('http');
+        msg = '<a href="http' + l[1] + '" target="_blank">' + l[0] + '</a>';
+      }
+
+      newElem.innerHTML = msg;
+      feedList.insertBefore(newElem, feedList.firstChild);
+    });
+
+    var say = function(msg, from) {
+      socket.emit('message', { body: msg, from: from });
+    };
+    </script>
+  </body>
+</html>

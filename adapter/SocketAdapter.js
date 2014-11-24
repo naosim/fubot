@@ -29,6 +29,9 @@ module.exports.adapter = function(robot) {
   app.get('/web/', function (req, res) {
       res.sendFile(process.argv[1].substring(0, process.argv[1].lastIndexOf('/')) + '/public/index.html');
   });
+  app.get('/rss/', function (req, res) {
+      res.sendFile(process.argv[1].substring(0, process.argv[1].lastIndexOf('/')) + '/public/rss.html');
+  });
   http.listen(port, function () {
       console.log('listening on localhost:' + port + '/web/');
       console.log('Talk with me by Developer Console on Browser!!');
