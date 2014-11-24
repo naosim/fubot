@@ -64,11 +64,11 @@ var Crawl = function(newItenFeedCrawler) {
       // console.log('start ' + rss.url);
       var req = request(rss.url);
       req.on('error', function (error) {
-        console.log(error)
+        console.log(error, rss.url)
       });
       req.on('response', function (res) {
         var stream = this;
-        if (res.statusCode != 200) return this.emit('error', new Error('Bad status code'));
+        if (res.statusCode != 200) return this.emit('error', new Error('Bad status code ' + res.statusCode + ' ' + rss.url));
         stream.pipe(newItenFeedCrawler.feedparser(rss));
       });
     }
