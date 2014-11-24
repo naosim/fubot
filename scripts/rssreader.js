@@ -32,7 +32,7 @@ var NewItemFeedcrawler = function() {
     setCallback: function(incallback) {
       callback = incallback;
     },
-    feedparser: function() {
+    feedparser: function(userData) {
       var feedparser = new FeedParser();
       feedparser.on('error', function(error) {
       });
@@ -43,7 +43,7 @@ var NewItemFeedcrawler = function() {
 
         while (item = stream.read()) {
           if(!feedSet.exists(meta.title, item.title)) {
-            if(callback) callback(item);
+            if(callback) callback(item, userData);
             feedSet.put(meta.title, item.title);
           }
         }
@@ -60,16 +60,16 @@ var NewItemFeedcrawler = function() {
 
 var Crawl = function(newItenFeedCrawler) {
   return {
-    start: function(rssUrl) {
-      console.log('start ' + rssUrl);
-      var req = request(rssUrl);
+    start: function(rss) {
+      // console.log('start ' + rss.url);
+      var req = request(rss.url);
       req.on('error', function (error) {
-        console.log(error)
+        console.log(error, rss.url)
       });
       req.on('response', function (res) {
         var stream = this;
-        if (res.statusCode != 200) return this.emit('error', new Error('Bad status code'));
-        stream.pipe(newItenFeedCrawler.feedparser());
+        if (res.statusCode != 200) return this.emit('error', new Error('Bad status code ' + res.statusCode + ' ' + rss.url));
+        stream.pipe(newItenFeedCrawler.feedparser(rss));
       });
     }
   }
@@ -81,17 +81,17 @@ module.exports.all = function() {
   return newItenFeedCrawler.all();
 };
 
-module.exports.run = function(rssUrls, newFeedCallback) {
+module.exports.run = function(rsses, newFeedCallback) {
   var crawl = Crawl(newItenFeedCrawler);
 
-  rssUrls.forEach(function(url, index) {
+  rsses.forEach(function(rss, index) {
     setTimeout(function() {
-      setInterval(function(){ crawl.start(url) }, Math.max(INTERVAL_EACH_URL * rssUrls.length, MIN_INTERVAL))
-      crawl.start(url);
+    setInterval(function(){ crawl.start(rss) }, Math.max(INTERVAL_EACH_URL * rsses.length, MIN_INTERVAL))
+      crawl.start(rss);
     }, index * INTERVAL_EACH_URL + (15 * 1000));// 15秒後から随時開始
   });
 
-  rssUrls.forEach(crawl.start);
+  rsses.forEach(crawl.start);
 
   // 初回取得をコールバックさせないために
   // 時間差でセットする
