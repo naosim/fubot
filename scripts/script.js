@@ -33,10 +33,10 @@ module.exports = function(robot) {
   // 定期的実行する (時刻を知らせる)
   robot.enter(function(sender) {
     var rssUrls = [
-      'http://b.hatena.ne.jp/hotentry/it.rss',
-      'http://b.hatena.ne.jp/hotentry/fun.rss'
+      {url: 'http://b.hatena.ne.jp/hotentry/it.rss'},
+      {url: 'http://b.hatena.ne.jp/hotentry/fun.rss'}
     ];
-    var newFeedCallback = function(item) {
+    var newFeedCallback = function(item, rss) {
       console.log(item.title, item.link, item.description);
       sender.send(item.title + '\n' + item.link + '\n' + item.description);
     };
