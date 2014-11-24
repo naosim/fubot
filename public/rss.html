@@ -7,11 +7,13 @@
       padding: 0px;
       margin: 0px;
       color: #333;
+      letter-spacing: 0.2px;
     }
     h1 {
       background: #00bcd4;
       color: #fdfdfd;
-      font-size: 32x;
+      font-size: 32px;
+      letter-spacing: 8px;
       line-height: 3.4em;
       padding-left: 48px;
       padding-top: 3px;/* ボーダの幅と同じ */
@@ -52,18 +54,33 @@
       list-style-type: none;
       margin-right: 48px;
       margin-left: 48px;
-      padding: 24px;
+      margin-bottom: 24px;
+      -webkit-border-bottom-left-radius: 2px;    /* Safari,Google Chrome用 */
+      -moz-border-bottom-left-radius: 2px;    /* Safari,Google Chrome用 */
+      border-bottom-left-radius: 2px;   /* Firefox用 */
+      -webkit-border-bottom-right-radius: 2px;    /* Safari,Google Chrome用 */
+      -moz-border-radius-bottomright: 2px;   /* Firefox用 */
+      border-bottom-right-radius: 2px;   /* Firefox用 */
     }
     li {
       padding-top: 4px;
       padding-bottom: 4px;
+      padding: 20px;
+      margin-top: 2px;
+      margin-bottom: 2px;
+      border-left:#fefefe solid 8px;
     }
-
+    .rss-title a {
+      letter-spacing: 1px;
+    }
     .rss-description {
       padding-left: 24px;
       padding-right: 24px;
       font-size: small;
       height: 160px;
+    }
+    .it {
+      border-left:#00acd4 solid 8px;
     }
     </style>
   </head>
@@ -71,20 +88,22 @@
     <h1>FUBOT RSS Reader</h1>
     <ul id="feedList">
 
-      <!-- <li>
-        <p><a href="http://www.yahoo.co.jp">fdhofiasio</a></p>
+      <!-- <li class="it">
+        <div class="rss-title"><a href="http://www.yahoo.co.jp">fdhofiasio</a></div>
         <div class="rss-description"><blockquote cite="http://himasoku.com/archives/51876212.html" title="【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ : 暇人＼(^o^)／速報 - ライブドアブログ"><cite><img src="http://cdn-ak.favicon.st-hatena.com/?url=http%3A%2F%2Fhimasoku.com%2F" alt=""> <a href="http://himasoku.com/archives/51876212.html">【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ : 暇人＼(^o^)／速報 - ライブドアブログ</a></cite><p><a href="http://himasoku.com/archives/51876212.html"><img src="http://cdn-ak.b.st-hatena.com/entryimage/234719497-1416814324.jpg" alt="【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ : 暇人＼(^o^)／速報 - ライブドアブログ" title="【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ : 暇人＼(^o^)／速報 - ライブドアブログ" class="entry-image"></a></p><p>【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ Tweet 1: 以下、＼(^o^)／でVIPがお送りします 2014/11/24(月) 08:42:58.93 ID:Qs5352ub0.net　 付き合いたい 3: 以下、＼(^o^)／でVIPがお送りします 2014/11/24(月) 08:43:43.02 ID:kKl5e7wr0.net 真ん中はもらった 6: 以下、＼(^o^)／でVIP...</p><p><a href="http://b.hatena.ne.jp/entry/http://himasoku.com/archives/51876212.html"><img src="http://b.hatena.ne.jp/entry/image/http://himasoku.com/archives/51876212.html" alt="はてなブックマーク - 【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ : 暇人＼(^o^)／速報 - ライブドアブログ" title="はてなブックマーク - 【画像あり】北欧人ロシア人可愛過ぎワロタｗｗｗ : 暇人＼(^o^)／速報 - ライブドアブログ" border="0" style="border: none"></a> <a href="http://b.hatena.ne.jp/append?http://himasoku.com/archives/51876212.html"><img src="http://b.hatena.ne.jp/images/append.gif" border="0" alt="はてなブックマークに追加" title="はてなブックマークに追加"></a></p></blockquote></div>
       </li>
-      <li><a>fdhofiasio</a></li>
-      <li><a>fdhofiasio</a></li>
-      <li><a>fdhofiasio</a></li> -->
+      <li><div class="rss-title"><a>fdhofiasio</a></div></li>
+      <li><div class="rss-title"><a>fdhofiasio</a></div></li>
+      <li class="it"><div class="rss-title"><a>fdhofiasio</a></div></li>
+      <li class="it"><div class="rss-title"><a>fdhofiasio</a></div></li> -->
 
     </ul>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-    var createFeedLi = function(title, link, description) {
+    var createFeedLi = function(title, link, description, className) {
       var result = document.createElement("li");
-      var html = '<div><a href="' + link + '" target="_blank">' + title + '</a></div>';
+      if(className) result.className = className;
+      var html = '<div class="rss-title"><a href="' + link + '" target="_blank">' + title + '</a></div>';
       if(description) html += '<div class="rss-description">' + description + '</div>';
       result.innerHTML = html;
       return result;
@@ -114,7 +133,7 @@
       var description = item.description;
       var imgs = getImgs(item.description);
       if(imgs.favicon.length > 0) title = imgs.favicon + ' ' + title;
-      feedList.insertBefore(createFeedLi(title, item.link, imgs.imgs), feedList.firstChild);
+      feedList.insertBefore(createFeedLi(title, item.link, imgs.imgs, item.tag), feedList.firstChild);
     });
 
     var say = function(msg, from) {
