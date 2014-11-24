@@ -1,6 +1,9 @@
 var FeedParser = require('feedparser')
   , request = require('request');
 
+var INTERVAL_EACH_URL = 10 * 1000;
+var MIN_INTERVAL = 3 * 60 * 1000;
+
 /**
 * 新しいフィードが見つかったらコールバックに返す
 */
@@ -55,10 +58,10 @@ var NewItemFeedcrawler = function() {
   }
 }
 
-var crawlTask = function(rssUrls, newItenFeedCrawler) {
-  return function() {
-    console.log('start request ' + new Date());
-    rssUrls.forEach(function(rssUrl) {
+var Crawl = function(newItenFeedCrawler) {
+  return {
+    start: function(rssUrl) {
+      console.log('start ' + rssUrl);
       var req = request(rssUrl);
       req.on('error', function (error) {
         console.log(error)
@@ -68,9 +71,10 @@ var crawlTask = function(rssUrls, newItenFeedCrawler) {
         if (res.statusCode != 200) return this.emit('error', new Error('Bad status code'));
         stream.pipe(newItenFeedCrawler.feedparser());
       });
-    });
-  };
+    }
+  }
 };
+
 var newItenFeedCrawler = NewItemFeedcrawler();
 
 module.exports.all = function() {
@@ -78,12 +82,20 @@ module.exports.all = function() {
 };
 
 module.exports.run = function(rssUrls, newFeedCallback) {
-  setInterval(crawlTask(rssUrls, newItenFeedCrawler), 3 * 60 * 1000);
-  crawlTask(rssUrls, newItenFeedCrawler)();
+  var crawl = Crawl(newItenFeedCrawler);
+
+  rssUrls.forEach(function(url, index) {
+    setTimeout(function() {
+      setInterval(function(){ crawl.start(url) }, Math.max(INTERVAL_EACH_URL * rssUrls.length, MIN_INTERVAL))
+      crawl.start(url);
+    }, index * INTERVAL_EACH_URL + (15 * 1000));// 15秒後から随時開始
+  });
+
+  rssUrls.forEach(crawl.start);
 
   // 初回取得をコールバックさせないために
   // 時間差でセットする
   setTimeout(function() {
     newItenFeedCrawler.setCallback(newFeedCallback);
-  },10 * 1000);
+  }, 10 * 1000);
 };
