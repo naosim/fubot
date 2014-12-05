@@ -14,6 +14,7 @@ var ChatworkAPI = function(token) {
       "Host": 'api.chatwork.com',
       "X-ChatWorkToken": token
     };
+    var hasBody = body;
     options = {
       "agent": false,
       "host": 'api.chatwork.com',
@@ -22,8 +23,11 @@ var ChatworkAPI = function(token) {
       "method": method,
       "headers": headers
     };
-    body = new Buffer(body);
-    options.headers["Content-Length"] = body.length;
+    if(hasBody) {
+      body = new Buffer(body);
+      options.headers["Content-Length"] = body.length;
+    }
+
     options.headers["Content-Type"] = "application/x-www-form-urlencoded";
     request = HTTPS.request(options, function(response) {
       var data;
@@ -58,7 +62,12 @@ var ChatworkAPI = function(token) {
         return callback(err, {});
       });
     });
-    request.end(body, 'binary');
+    if(hasBody) {
+      request.end(body, 'binary');
+    } else {
+      request.end(null, 'binary');
+    }
+
     return request.on("error", function(err) {
       return console.error("Chatwork request error: " + err);
     });
@@ -92,6 +101,9 @@ var ChatworkAPI = function(token) {
             create: function(text, callback) {
               var body = "body=" + text;
               return post("" + baseUrl + "/messages", body, callback);
+            },
+            list: function(callback) {
+              return get("" + baseUrl + "/messages?force=0", null, callback);
             }
           }
         }
