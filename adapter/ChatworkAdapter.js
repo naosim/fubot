@@ -2,6 +2,7 @@ HTTPS = require('https');
 
 var CHATWORK_TOKEN = process.env.NODE_CHATWORK_TOKEN;
 var CHATWORK_ROOM_ID = process.env.NODE_CHATWORK_ROOM_ID;
+var CHATWORK_USER_ID = process.env.NODE_CHATWORK_USER_ID;
 
 var ChatworkAPI = function(token) {
   var get = function(path, body, callback) { return request("GET", path, body, callback); };
@@ -147,6 +148,7 @@ var listenTask = function(newTasksCallback) {
     return result;
   }
 
+  // タスクの取得
   setInterval(function() {
     console.log("listen tasks");
     chatworkAPI.My().tasks({}, function(err,data) {
@@ -162,6 +164,51 @@ var listenTask = function(newTasksCallback) {
       } else {
         console.log("-> no new tasks");
       }
+    });
+  }, INTERVAL);
+
+};
+
+
+var listenMessage = function(messagesCallback) {
+  var isFirst = true;
+  var INTERVAL = 30 * 1000;
+
+  var filterNewMessages = function(messages) {
+    if(isFirst || !messages.hasOwnProperty('length')) {
+      isFirst = false;
+      return [];
+    } else {
+      return messages;
+    }
+  }
+
+  var filterReplyToMeMessages = function(messages) {
+    var result = [];
+    for(var i = 0; i < messages.length; i++) {
+      if(messages[i].body.indexOf('[To:' + CHATWORK_USER_ID + ']') != -1) result.push(messages[i]);
+    }
+    return result;
+
+  };
+
+  // メッセージ一覧の取得
+  setInterval(function() {
+    console.log("listen tasks");
+    chatworkAPI.Room(CHATWORK_ROOM_ID).Messages().list(function(err,data) {
+      if(err) {
+        console.error(err)
+        return;
+      }
+      console.error(data)
+      var messages = filterNewMessages(data);
+      // messages = filterReplyToMeMessages(messages);
+      if(messages.length > 0) {
+            console.log("-> new messages exist");
+            messagesCallback(messages);
+          } else {
+            console.log("-> no new messages");
+          }
     });
   }, INTERVAL);
 };
@@ -196,15 +243,33 @@ var sendToRoom = function(roomId, msgBody) {
 };
 
 module.exports.adapter = function(robot) {
-  listenTask(function(tasks) {
-    tasks.forEach(function(task) {
+  // タスク監視
+  // listenTask(function(tasks) {
+  //   tasks.forEach(function(task) {
+  //     var msg = {
+  //       body: task.body,
+  //       from: task.assigned_by_account.account_id,
+  //       isToMe: true
+  //     };
+  //     robot.receive(msg, {
+  //       send: function(msgBody, to) {
+  //         sendToRoom(task.room.room_id, createMessageBody(msgBody, to, task.assigned_by_account.name));
+  //       }
+  //     });
+  //   });
+  // });
+
+  // メッセージ一覧監視
+  listenMessage(function(messages) {
+    messages.forEach(function(message) {
       var msg = {
-        body: task.body,
-        from: task.assigned_by_account.account_id
+        body: message.body,
+        from: message.account.account_id,
+        isToMe: message.body.indexOf('[To:' + CHATWORK_USER_ID + ']') != -1
       };
       robot.receive(msg, {
         send: function(msgBody, to) {
-          sendToRoom(task.room.room_id, createMessageBody(msgBody, to, task.assigned_by_account.name));
+          sendToRoom(CHATWORK_ROOM_ID, createMessageBody(msgBody, to, message.account.name));
         }
       });
     });
