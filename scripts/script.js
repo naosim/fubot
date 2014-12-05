@@ -4,7 +4,7 @@ module.exports = function(robot) {
   // 正規表現にマッチしたら答える
   // msg: {body: string, from: any}
   robot.hear(/Hello/i, function(msg, sender) {
-    sender.send("Hello! Hello!", msg.from);
+    sender.send("はろー", msg.from);
   });
 
   robot.hear(/all/i, function(msg, sender) {

@@ -24,7 +24,7 @@ node app.js
   say('Hello')
   ```
   と入力する  
-  → `Hello! Hello!`が返れば成功。
+  → `はろー`が返れば成功。
 
 ## 会話のカスタマイズ
 会話は`scripts/script.js`を変更することでカスタマイズできます。  
@@ -46,19 +46,30 @@ node app.js
 
 ## ChatWorkAdapter
 Chatworkで会話できるようにします。  
-ただし、ChatworkAPI側のメッセージ一覧取得が未実装なため
-実際は会話ではなく、
-タスクを追加するとそれに対して反応するような動きになります。
- (早くAPI実装してほしいなぁ。。)
 - ChatworkのAPITokenを取得する  
   Chatworkのサイトで取得してください。※取得には数日かかります。
 - ルームIDを確認する  
  たとえばルームのURLが`https://www.chatwork.com/#!rid123456`なら、ルームIDは`123456`です。
+- 自分(bot)のIDを確認する
+  自分宛にtoでメッセージを送るとわかります。数値型です。
 - Adapterの設定、APIToken、ルームIDを環境変数に指定してアプリを起動する
-`NODE_ADAPTER_SCRIPT=ChatworkAdapter.js NODE_CHATWORK_TOKEN=xxxx NODE_CHATWORK_ROOM_ID=xxxxxx node app.js`
+`NODE_ADAPTER_SCRIPT=ChatworkAdapter.js NODE_CHATWORK_TOKEN=xxxxxx NODE_CHATWORK_USER_ID=xxxx NODE_CHATWORK_ROOM_ID=xxxx node app.js`
 - ChatworkでTokenを取得したユーザにタスク「Hello」をふる  
-  タイムラインに`Hello! Hello!`と表示されれば成功  
+  タイムラインに`はろー`と表示されれば成功  
   ※表示までに最大30秒かかります。
+### 余談：TOが自分の場合だけ反応させる
+先ほどの例は、すべてのメッセージに反応しますが
+sctipt.jsでこんな感じに書くと、自分宛のメッセージのみに反応するようにできます。
+```
+robot.hear(
+  function(msg) {
+    return msg.body.indexOf('hello') != -1 && msg.isMe
+  },
+  function(msg, sender) {
+    sender.send("はろー", msg.from);
+  }
+);
+```
 
 ## Adapterを自作する
 - `/adapter`ディレクトリ内にjsファイルを作って実装してください。  
