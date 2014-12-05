@@ -179,7 +179,11 @@ var listenMessage = function(messagesCallback) {
       isFirst = false;
       return [];
     } else {
-      return messages;
+      var result = [];
+      for(var i = 0; i < messages.length; i++) {
+        if(messages[i].account.account_id != CHATWORK_USER_ID) result.push(messages[i]);
+      }
+      return result;
     }
   }
 
@@ -193,7 +197,7 @@ var listenMessage = function(messagesCallback) {
   };
 
   // メッセージ一覧の取得
-  setInterval(function() {
+  var loopAction = function() {
     console.log("listen tasks");
     chatworkAPI.Room(CHATWORK_ROOM_ID).Messages().list(function(err,data) {
       if(err) {
@@ -210,7 +214,9 @@ var listenMessage = function(messagesCallback) {
             console.log("-> no new messages");
           }
     });
-  }, INTERVAL);
+  };
+  setInterval(loopAction, INTERVAL);
+  loopAction();
 };
 
 /**
